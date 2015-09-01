@@ -131,9 +131,9 @@ void insert(__int64 x){
 */
 bool prime[10000000];
 prime[0] = prime[1] = true;
-for (long long i=2; i<=n; i++)
+for (__int64 i=2; i<=n; i++)
 		if (!prime[i])
-			for (long long j=i*i; j<=r; j+=i)
+			for (__int64 j=i*i; j<=r; j+=i)
 				prime[j] = true;
 
 /*
@@ -209,12 +209,12 @@ struct po__int64{
 		cout << x << " " << y << endl;
 	}
 	po__int64(){}
-	po__int64(long long x, long long y) :x(x), y(y){}
+	po__int64(__int64 x, __int64 y) :x(x), y(y){}
 };
 double operator + (po__int64 a, po__int64 b){
 	return sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));
 }
-long long operator * (po__int64 a, po__int64 b){
+__int64 operator * (po__int64 a, po__int64 b){
 	return a.x*b.y - a.y*b.x;
 }
 double operator % (po__int64 a, po__int64 b){
