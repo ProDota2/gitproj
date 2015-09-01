@@ -10,23 +10,24 @@ const __int64 INF = 1LL << 57;
 /*
 Алгоритм Крускала
 */
-__int64 p[1000000];
+//СНМ
+__int64 p[1000000];//Изначально p[v]=v так как каждая вершина это отдельное мнодество
+//Находит корень множества в котором находится этот элемент
 __int64 find(__int64 x){
 	return (p[x] == x ? x : p[x] = find(p[x]));
 }
+//Обьединение двух множеств
 void Union(__int64 v1, __int64 v2){
-	p[find(v1)] = find(v2);
+	if(find(v1)!=find(v2))
+		p[find(v1)] = find(v2);
 }
+//Структура ребро
 struct edge{
 	__int64 v, w, cost;
+	edge(){}
+	edge(__int64 a, __int64 b, __int64 c):v(a),w(b),cost(c){}
 };
-edge make_edge(__int64 a, __int64 b, __int64 c){
-	edge new_edge;
-	new_edge.v = a;
-	new_edge.w = b;
-	new_edge.cost = c;
-	return new_edge;
-}
+//Компаратор для сортировки рёбер по возрастанию
 bool edge_sort(edge a, edge b){
 	if (a.cost < b.cost)
 		return true;
@@ -135,6 +136,7 @@ void StringToHash(string s, hsh *ans){
 		}
 	}
 }
+//Сравнение хэшей
 bool equals(hsh a, hsh b){
 	for (__int64 mod = 0; mod<AmountOfMods; mod++)
 	if (a.Eq_Mod[mod] != a.Eq_Mod[mod])
@@ -144,12 +146,13 @@ bool equals(hsh a, hsh b){
 
 /*
 Дейкстра с priority_queue
+Граф задан в виде массива ветров пар
 O(NlogN)
 */
-__int64 Dijxtra(__int64 countOfElements, __int64 start, __int64 finish, vector<pair<__int64, __int64> > *g){
+void Dijxtra(__int64 countOfElements, __int64 start, vector<pair<__int64, __int64> > *g){
 	vector<__int64>d;
 	d.resize((unsigned int)countOfElements, INF);
-	vector<bool>used;
+	vector<bool>used;//Есть ли этот элемент в множестве А
 	used.resize((unsigned int)countOfElements);
 	priority_queue<pair<__int64, __int64> >q;
 	d[(unsigned int)start] = 0;
@@ -161,10 +164,7 @@ __int64 Dijxtra(__int64 countOfElements, __int64 start, __int64 finish, vector<p
 			continue;
 		if (d[(unsigned int)v] == INF)
 			break;
-		used[(unsigned int)v] = true;
-		if (v == finish){
-			return d[(unsigned int)v];
-		}
+		used[(unsigned int)v] = true;//Добавление в А
 		for (__int64 i = 0; i<g[v].size(); i++){
 			__int64 to = g[(unsigned int)v][(unsigned int)i].first;
 			if (d[(unsigned int)to] > d[(unsigned int)v] + g[(unsigned int)v][(unsigned int)i].second){
@@ -173,7 +173,6 @@ __int64 Dijxtra(__int64 countOfElements, __int64 start, __int64 finish, vector<p
 			}
 		}
 	}
-	return INF;
 }
 
 /*
@@ -184,21 +183,26 @@ struct point{
 	point(){}
 	point(double x, double y) :x(x), y(y){}
 };
+//Расстояние между двумя точками
 double operator + (point a, point b){
 	return sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));
 }
+//Векторное произедение |a|*|b|*sin(o)
 double operator * (point a, point b){
 	return a.x*b.y - a.y*b.x;
 }
+//Скалярное произведение |a|*|b|*cos(o)
 double operator % (point a, point b){
 	return a.x*b.x + a.y*b.y;
 }
+//Вычитание из одного вектора другого или из одной точки вторую(для построения вектора)
 point operator - (point a, point b){
 	point ans;
 	ans.x = a.x - b.x;
 	ans.y = a.y - b.y;
 	return ans;
 }
+//Сортировка относительно начала координат 
 point rot(0, 0);
 bool cmp(point a, point b){
 	if ((a - rot)*(b - rot) > 0)
@@ -209,6 +213,14 @@ bool cmp(point a, point b){
 		return true;
 	return false;
 }
+//Поворот на угол с синусом sina и косинусом cosa
+point px(point a, double sina, double cosa){
+	point ans;
+	ans.x = a.x*cosa - a.y*sina;
+	ans.y = a.x*sina + a.y*cosa;
+	return ans;
+}
+//Поворот на 90,180,270 градусов
 point p90(point a){
 	return point(-a.y, a.x);
 }
@@ -218,17 +230,38 @@ point p180(point a){
 point p270(point a){
 	return point(a.y, -a.x);
 }
-
+//Структура круг
 struct circle{
 	point o;
-	__int64 r;
+	double r;
 };
-
+//Структура линия
+struct line{
+	double a, b, c;
+	line(){};
+	line(point e, point f){
+		a = e.y - f.y;
+		b = f.x - e.x;
+		c = -(a*e.x + b*e.y);
+	}
+};
+double equa(double a, double b, double c, double d) {
+	return a * d - b * c;
+}
+//Нахождение точки пересечения прямых
+point operator * (line m,line n){
+	double zn = equa(m.a, m.b, n.a, n.b);
+	point ans;
+	ans.x = -equa(m.c, m.b, n.c, n.b) / zn;
+	ans.y = -equa(m.a, m.c, n.a, n.c) / zn;
+	return ans;
+}
 /*
 Реализация стека с динамической длинной
 push(x) - добавляет элемент x
 pop() - удаляет элемент
 get_top() - возвращает верхний элемент
+Для созданея стека нужно написать Stack<тип переменных в стеке> название стека
 */
 template<class type>
 struct Stack{
@@ -264,7 +297,7 @@ sum(from,to,v,l,r) - вщзвращает сумму на [from , to) (sum(from,
 */
 class tree_section{
 private:
-	__int64 INF = 1 << 29;
+	__int64 INF = 1LL << 57;
 public:
 	__int64 NONE = -INF;
 private:
