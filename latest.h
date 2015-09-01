@@ -3,20 +3,20 @@
 #include <queue>
 #include <string>
 using namespace std;
-const int INF = 1<<29;
+const __int64 INF = 1LL<<57;
 
 /*
 Алгоритм Крускала
 */
 
-int find(int x){
+__int64 find(__int64 x){
 	return (p[x] == x ? x : p[x] = find(p[x]));
 }
-void Union(int v1, int v2){
+void Union(__int64 v1, __int64 v2){
 	p[find(v1)] = find(v2);
 }
 struct edge{
-	int v, w, cost;
+	__int64 v, w, cost;
 	void r(){
 		cin >> v >> w >> cost;
 	}
@@ -24,7 +24,7 @@ struct edge{
 		cout << v << ' ' << w << ' ' << cost << endl;
 	}
 };
-edge make_edge(int a, int b, int c){
+edge make_edge(__int64 a, __int64 b, __int64 c){
 	edge new_edge;
 	new_edge.v = a;
 	new_edge.w = b;
@@ -39,18 +39,18 @@ bool edge_sort(edge a, edge b){
 //Example
 //Выводит минимальное остовное дерево 
 cin >> x >> y;
-for (int i = 0; i < x;i++)
+for (__int64 i = 0; i < x;i++)
 	p[i] = i;
-for (int i = 0; i < y;i++){
-	int a, b, c;
+for (__int64 i = 0; i < y;i++){
+	__int64 a, b, c;
 	cin >> a >> b >> c;
 	g.push_back(make_edge(a, b, c));
 	g.push_back(meke_edge(b, a, c));
 }
-int ans = 0;
+__int64 ans = 0;
 sort(g.begin(), g.end(), edge_sort);
-for (int i = 0i < g.size();i++){
-	int v, w;
+for (__int64 i = 0i < g.size();i++){
+	__int64 v, w;
 	v = g[i].v;
 	w = g[i].w;
 	if (find(v) != find(w)){
@@ -68,7 +68,7 @@ insert и find - поймёте сами
 */
 
 struct node{
-	int x, y;
+	__int64 x, y;
 	node *l, *r;
 };
 node *root;
@@ -85,7 +85,7 @@ node * merge(node *l,node *r){
 		return r;
 	}
 }
-void split(node *v,int x,node *&l,node *&r){
+void split(node *v,__int64 x,node *&l,node *&r){
 	if(v==NULL){
 		l=r=NULL;
 		return;
@@ -98,13 +98,13 @@ void split(node *v,int x,node *&l,node *&r){
 		r=v;
 	}
 }
-void del(int x){
+void del(__int64 x){
 	node *l,*m,*r;
 	split(root,x-1,l,m);
 	split(m,x,m,r);
 	root=merge(l,r);
 }
-bool find(int x,node *r){
+bool find(__int64 x,node *r){
 	if (r == NULL)
 		return false;
 	if(r->x==x)
@@ -115,7 +115,7 @@ bool find(int x,node *r){
 		return find(x, r->l);
 	}
 }
-void insert(int x){
+void insert(__int64 x){
 	node *l, *r;
 	node *v=new node;
 	v->x = x;
@@ -139,17 +139,17 @@ for (long long i=2; i<=n; i++)
 /*
 Hash-функция с несколькими модулями
 */
-int AmountOfMods=3;
-int mods[5]={1000000007,1000000009,524287,107,101};
-int p=129;
+__int64 AmountOfMods=3;
+__int64 mods[5]={1000000007,1000000009,524287,107,101};
+__int64 p=129;
 struct hash
 {
-	int Eq_Mod[5];
+	__int64 Eq_Mod[5];
 };
 void StringToHash(string s,hash *ans){
-	for(int i=0;i<(int)s.length();i++){
-		int chr=s[i];
-		for(int mod=0;mod<AmountOfMods;mod++){
+	for(__int64 i=0;i<(__int64)s.length();i++){
+		__int64 chr=s[i];
+		for(__int64 mod=0;mod<AmountOfMods;mod++){
 			ans[i].Eq_Mod[mod]=ans[max(i-1,0)].Eq_Mod[mod];
 			ans[i].Eq_Mod[mod]+=chr;
 			ans[i].Eq_Mod[mod]%=mods[mod];
@@ -157,7 +157,7 @@ void StringToHash(string s,hash *ans){
 	}
 }
 bool hash_equals(hash a,hash b){
-	for(int mod=0;mod<AmountOfMods;mod++)
+	for(__int64 mod=0;mod<AmountOfMods;mod++)
 		if(a.Eq_Mod[mod]!=a.Eq_Mod[mod])
 			return false;
 	return true;
@@ -167,16 +167,16 @@ bool hash_equals(hash a,hash b){
 Дейкстра с priority_queue 
 O(NlogN)
 */
-int Dijxtra(int countOfElements,int start,int finish,vector<pair<int,int> > *g){
-	vector<int>d;
+__int64 Dijxtra(__int64 countOfElements,__int64 start,__int64 finish,vector<pair<__int64,__int64> > *g){
+	vector<__int64>d;
 	d.resize(countOfElements,INF);
 	vector<bool>used;
 	used.resize(countOfElements);
-	priority_queue<pair<int,int> >q;
+	priority_queue<pair<__int64,__int64> >q;
 	d[start]=0;
 	q.push(make_pair(0,start));
 	while(!q.empty()){
-		int v=q.top().second;
+		__int64 v=q.top().second;
 		q.pop();
 		if(used[v])
 			continue;
@@ -186,8 +186,8 @@ int Dijxtra(int countOfElements,int start,int finish,vector<pair<int,int> > *g){
 		if(v==finish){
 			return d[v];
 		}
-		for(int i=0;i<g[v].size();i++){
-			int to=g[v][i].first;
+		for(__int64 i=0;i<g[v].size();i++){
+			__int64 to=g[v][i].first;
 			if(d[to] > d[v] + g[v][i].second){
 				d[to]=d[v] + g[v][i].second;
 				q.push(make_pair(-d[to],to));
@@ -200,7 +200,7 @@ int Dijxtra(int countOfElements,int start,int finish,vector<pair<int,int> > *g){
 /*
 Геометрия
 */
-struct point{
+struct po__int64{
 	double x, y;
 	void r(){
 		cin >> x >> y;
@@ -208,26 +208,26 @@ struct point{
 	void write(){
 		cout << x << " " << y << endl;
 	}
-	point(){}
-	point(long long x, long long y) :x(x), y(y){}
+	po__int64(){}
+	po__int64(long long x, long long y) :x(x), y(y){}
 };
-double operator + (point a, point b){
+double operator + (po__int64 a, po__int64 b){
 	return sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));
 }
-long long operator * (point a, point b){
+long long operator * (po__int64 a, po__int64 b){
 	return a.x*b.y - a.y*b.x;
 }
-double operator % (point a, point b){
+double operator % (po__int64 a, po__int64 b){
 	return a.x*b.x + a.y*b.y;
 }
-point operator - (point a, point b){
-	point ans;
+po__int64 operator - (po__int64 a, po__int64 b){
+	po__int64 ans;
 	ans.x = a.x - b.x;
 	ans.y = a.y - b.y;
 	return ans;
 }
-point root(0, 0);
-bool cmp(point a, point b){
+po__int64 root(0, 0);
+bool cmp(po__int64 a, po__int64 b){
 	if ((a - root)*(b - root) > 0)
 		return true;
 	if ((a - root)*(b - root) < 0)
@@ -236,19 +236,19 @@ bool cmp(point a, point b){
 		return true;
 	return false;
 }
-point p90(point a){
-	return point(-a.y, a.x);
+po__int64 p90(po__int64 a){
+	return po__int64(-a.y, a.x);
 }
-point p180(point a){
-	return point(-a.x, -a.y);
+po__int64 p180(po__int64 a){
+	return po__int64(-a.x, -a.y);
 }
-point p270(point a){
-	return point(a.y, -a.x);
+po__int64 p270(po__int64 a){
+	return po__int64(a.y, -a.x);
 }
 
 struct circle{
-	point o;
-	int r;
+	po__int64 o;
+	__int64 r;
 };
 
 /*
@@ -260,16 +260,16 @@ get_top() - возвращает верхний элемент
 class My_Stack
 {
 private:
-	int st[100000000];
-	int top;
+	__int64 st[100000000];
+	__int64 top;
 public:
-	void push(int x){
+	void push(__int64 x){
 		st[top++]=x;
 	}
 	void pop(){
 		top--;
 	}
-	int get_top(){
+	__int64 get_top(){
 		return st[top-1];
 	}
 };
@@ -283,36 +283,36 @@ sum(from,to,v,l,r) - вщзвращает сумму на [from , to) (sum(from,
 */
 class tree_section{
 private:
-	int INF = 1 << 29;
+	__int64 INF = 1 << 29;
 public:
-	int NONE = -INF;
+	__int64 NONE = -INF;
 private:
-	int tree[1000000];
-	int upd[1000000];
+	__int64 tree[1000000];
+	__int64 upd[1000000];
 public:
-	void build(int v, int l, int r,int *a){
+	void build(__int64 v, __int64 l, __int64 r,__int64 *a){
 		upd[v] = NONE;
 		if (r - l == 1){
 			tree[v] = a[l];
 		}
 		else{
-			int m = (l + r) / 2;
+			__int64 m = (l + r) / 2;
 			build(2 * v + 1, l, m, a);
 			build(2 * v + 2, m, r, a);
 			tree[v] = tree[v * 2 + 1] + tree[v * 2 + 2];
 		}
 	}
-	void push(int v, int l, int r){
+	void push(__int64 v, __int64 l, __int64 r){
 		if (upd[v] == NONE)
 			return;
-		int m = (l + r) / 2;
+		__int64 m = (l + r) / 2;
 		tree[2 * v + 1] = upd[v] * (m - l);
 		tree[2 * v + 2] = upd[v] * (r - m);
 		upd[2 * v + 1] = upd[v];
 		upd[2 * v + 2] = upd[v];
 		upd[v] = NONE;
 	}
-	void modify(int from, int to, int value, int v, int l, int r){
+	void modify(__int64 from, __int64 to, __int64 value, __int64 v, __int64 l, __int64 r){
 		if (to <= l || from >= r)
 			return;
 		if (from <= l && r <= to)
@@ -322,12 +322,12 @@ public:
 			return;
 		}
 		push(v, l, r);
-		int m = (l + r) / 2;
+		__int64 m = (l + r) / 2;
 		modify(from, to, value, 2 * v + 1, l, m);
 		modify(from, to, value, 2 * v + 2, m, r);
 		tree[v] = tree[2 * v + 1] + tree[2 * v + 2];
 	}
-	int sum(int from,int to,int v,int l,int r){
+	__int64 sum(__int64 from,__int64 to,__int64 v,__int64 l,__int64 r){
 		if (from <= l && r <= to){
 			return tree[v];
 		}
@@ -335,7 +335,7 @@ public:
 			return 0;
 		}
 		push(v, l, r);
-		int m = (l + r) / 2;
+		__int64 m = (l + r) / 2;
 		return sum(from, to, 2 * v + 1, l, m) + sum(from, to, 2 * v + 2, m, r);
 	}
 };
