@@ -8,6 +8,95 @@ using namespace std;
 const __int64 INF = 1LL << 57;
 
 /*
+	Односвязный список
+*/
+template<class type>
+struct List{
+	type data;
+	List* next;
+	List(){
+	}
+	List(type new_data){
+		data = new_data;
+		next = NULL;
+	}
+};
+template<class type>
+void Push(List<type>**begin, type add){
+	List<type>* dat = new List<type>(add);
+	if (*begin == NULL){
+		*begin = dat;
+		return;
+	}
+	if ((*begin)->data > dat->data){
+		dat->next = *begin;
+		*begin = dat;
+		return;
+	}
+	List<type>*t1 = new List<type>();
+	t1 = *begin;
+	List<type>*t2 = new List<type>();
+	t2 = t1->next;
+	while (t2){
+		if (t1->data <= dat->data && dat->data <= t2->data){
+			t1->next = dat;
+			dat->next = t2;
+			return;
+		}
+		t1 = t1->next;
+		t2 = t2->next;
+	}
+	t1->next = dat;
+	return;
+}
+template<class type>
+void PrintList(List<type>*begin){
+	while (begin){
+		cout << begin->data << " --> ";
+		begin = begin->next;
+	}
+	cout << "NULL";
+}
+template<class type>
+void Delete(List<type>**begin, type del){
+	if (*begin == NULL){
+		return;
+	}
+	List<type>*t1 = new List<type>();
+	t1 = *begin;
+	if (t1->data == del){
+		*begin = t1->next;
+		delete t1;
+		return;
+	}
+	List<type>*t2 = new List<type>();
+	t2 = t1->next;
+	while (t2){
+		if (t2->data == del){
+			t1->next = t2->next;
+			delete t2;
+			return;
+		}
+		t1 = t1->next;
+		t2 = t2->next;
+	}
+	return;
+}
+template<class type>
+void Free(List<type>**begin){
+	if (*begin == NULL)
+		return;
+	List<type>*p = *begin;
+	List<type>*t;
+	while (p){
+		t = p;
+		p = p->next;
+		delete t;
+	}
+	*begin = NULL;
+}
+
+/*
 Алгоритм Крускала
 */
 //СНМ
