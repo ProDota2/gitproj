@@ -8,6 +8,42 @@ using namespace std;
 const __int64 INF = 1LL << 57;
 
 /*
+	Бор
+*/
+struct letter{
+	letter* next[26];
+	letter(){
+		for (int i = 0; i < 26; i++)
+			next[i] = NULL;
+	}
+};
+void add(letter **root, string new_str){
+	letter *t = *root;
+	for (int i = 0; i < new_str.length(); i++){
+		if (t->next[new_str[i] - 'a'] != NULL){
+			t = t->next[new_str[i] - 'a'];
+		}
+		else{
+			letter* add = new letter();
+			t->next[new_str[i] - 'a'] = add;
+			t = add;
+		}
+	}
+}
+void print(letter **root, string ans){
+	letter *t = *root;
+	bool p = true;
+	for (int i = 0; i < 26; i++){
+		if (t->next[i] != NULL){
+			p = false;
+			print(&t->next[i], ans + char(i + 'a'));
+		}
+	}
+	if (p)
+		cout << ans << endl;
+}
+
+/*
 	Односвязный список
 */
 template<class type>
