@@ -7,6 +7,226 @@
 using namespace std;
 const __int64 INF = 1LL << 57;
 
+
+struct node {
+    long long x, y, cnt;
+    long long min;
+    bool reverse;
+    node *l, *r;
+    node(long long key) {
+        x = key;
+        reverse = false;
+        min = key;
+        cnt = 1;
+        y = rand();
+        l = r = NULL;
+    }
+};
+node *root = NULL;
+long long s(node * v) {
+    return (v == NULL ? 0 : v -> cnt);
+}
+ 
+long long mn(node * v) {
+    return (v == NULL ? 1LL << 57 : v -> min);
+}
+void recalc(node *v) {
+    if (v == NULL)
+        return;
+    v->min = min(mn(v->l), min(v -> x , mn(v->r)));
+    v->cnt = s(v->l) + s(v->r) + 1;
+}
+ 
+void push(node * v) {
+    if (v == NULL)
+        return;
+     
+    recalc(v);
+ 
+    if (v->reverse) {
+ 
+        swap(v -> l, v -> r);
+ 
+        recalc(v->l);
+        recalc(v->r);
+ 
+        if (v -> l != NULL)
+            v -> l -> reverse ^= 1;
+        if (v -> r != NULL)
+            v -> r -> reverse ^= 1;
+        v -> reverse = false;
+    }
+     
+    recalc(v);
+}
+ 
+node * merge(node *l, node *r) {
+    if (l == NULL)
+        return r;
+    if (r == NULL)
+        return l;
+ 
+    push(l);
+    push(r);
+    push(l->r);
+    push(l->l);
+    push(r->l);
+    push(r->r);
+     
+    if (l->y > r->y) {
+        l->r = merge(l->r, r);
+        recalc(l);
+        push(l);
+        return l;
+    }
+    else {
+        r->l = merge(l, r->l);
+        recalc(r);
+        push(r);
+        return r;
+    }
+}
+void split(node *v, long long x, node *&l, node *&r) {
+    if (v == NULL) {
+        l = r = NULL;
+        return;
+    }
+    if (v -> x <= x) {
+        split(v -> r, x, v->r, r);
+         
+        recalc(v);
+         
+        l = v;
+    }
+    else {
+        split(v -> l, x, l, v->l);
+         
+        recalc(v);
+         
+        r = v;
+    }
+}
+void splitN(node *v, long long x, node *&l, node *&r, long long left = 0) {
+    if (v == NULL) {
+        l = r = NULL;
+        return;
+    }
+ 
+    push(v);
+    push(v->r);
+    push(v->l);
+     
+    long long cur = s(v -> l) + 1 + left;
+    if (cur <= x) {
+        splitN(v->r, x, v->r, r , cur);
+        recalc(v);
+        push(v);
+        l = v;
+    }
+    else{
+        splitN(v->l, x, l, v->l , left);
+        recalc(v);
+        push(v);
+        r = v;
+    }
+}
+void remove(long long x) {
+    node *l, *m, *r;
+    split(root, x - 1, l, m);
+    split(m, x, m, r);
+    root = merge(l, r);
+}
+bool find(long long x, node *r) {
+    if (r == NULL)
+        return false;
+    if (r->x == x)
+        return true;
+    if (r->x < x)
+        return find(x, r->r);
+    else
+        return find(x, r->l);
+}
+void insert(long long x) {
+    node *v = new node(x);
+    root = merge(root, v);
+}
+
+template < class T >
+struct heap {
+	T a[10000000];
+	int next = 0;
+
+	void pushTop(int v) {
+		if (a[(v - 1) / 2] < a[v]) {
+			swap(a[(v - 1) / 2], a[v]);
+			pushTop((v - 1) / 2);
+		}
+	}
+	void pushBottom(int v) {
+		if (v * 2 + 2 < next) {
+			if (a[v * 2 + 2] > a[v * 2 + 1]) {
+				if (a[v] < a[v * 2 + 2]) {
+					swap(a[v], a[v * 2 + 2]);
+					pushBottom(v * 2 + 2);
+				}
+			}
+			else {
+				if (a[v] <= a[v * 2 + 1]) {
+					swap(a[v], a[v * 2 + 1]);
+					pushBottom(v * 2 + 1);
+				}
+			}
+		}
+		else 
+			if (v * 2 + 1 < next) {
+				if (a[v] < a[v * 2 + 1]) {
+					swap(a[v], a[v * 2 + 1]);
+					pushBottom(v * 2 + 1);
+				}
+			}
+	}
+	void insert(T nw) {
+		a[next] = nw;
+		pushTop(next);
+		next++;
+	}
+	T get_max() {
+		return a[0];
+	}
+	void pop() {
+		a[0] = a[--next];
+		pushBottom(0);
+	}
+};
+
+long long mod = 999999937;
+long long r = 937;
+long long getHash(string s) {
+	long long ans = 0;
+	long long pw = 1;
+	for (int i = 0; i < s.length(); i++) {
+		ans += ((s[i] - 'a' + 1) * pw) % mod;
+		ans %= mod;
+		pw *= r;
+		pw %= mod;
+	}
+	return ans;
+}
+
+void Hash(string s, long long *a) {
+	long long ans = 0;
+	long long pw = 1;
+	for (int i = 0; i < s.length(); i++) {
+		ans += ((s[i] - 'a' + 1) * pw) % mod;
+		ans += mod;
+		ans %= mod;
+		pw *= r;
+		pw += mod;
+		pw %= mod;
+		a[i] = ans;
+	}
+}
+
 /*
 	Бор
 */
@@ -51,10 +271,14 @@ struct List{
 	type data;
 	List* next;
 	List(){
+
 	}
 	List(type new_data){
 		data = new_data;
 		next = NULL;
+	}
+	~List(){
+		Free(this);
 	}
 };
 template<class type>
@@ -135,6 +359,7 @@ void Free(List<type>**begin){
 /*
 Алгоритм Крускала
 */
+
 //СНМ
 __int64 p[1000000];//Изначально p[v]=v так как каждая вершина это отдельное мнодество
 //Находит корень множества в котором находится этот элемент
@@ -146,6 +371,7 @@ void Union(__int64 v1, __int64 v2){
 	if(find(v1)!=find(v2))
 		p[find(v1)] = find(v2);
 }
+
 //Структура ребро
 struct edge{
 	__int64 v, w, cost;
@@ -169,6 +395,11 @@ insert и find - поймёте сами
 struct node{
 	__int64 x, y;
 	node *l, *r;
+	node (int key){
+		x = key;
+		y = rand();
+		l = r = NULL;
+	}
 };
 node *root;
 node * merge(node *l, node *r){
@@ -199,7 +430,7 @@ void split(node *v, __int64 x, node *&l, node *&r){
 		r = v;
 	}
 }
-void del(__int64 x){
+void remove(__int64 x){
 	node *l, *m, *r;
 	split(root, x - 1, l, m);
 	split(m, x, m, r);
@@ -210,20 +441,24 @@ bool find(__int64 x, node *r){
 		return false;
 	if (r->x == x)
 		return true;
-	if (r->x < x){
+	if (r->x < x)
 		return find(x, r->r);
-	}
-	else{
+	else
 		return find(x, r->l);
-	}
+}
+node * findNode(int x , node * v){
+	if(v == NULL)
+		return NULL;
+	if(v -> x == x)
+		return v;
+	if(v -> x < x)
+		return findNode(x , v -> r);
+	else
+		return findNode(x , v -> l);
 }
 void insert(__int64 x){
 	node *l, *r;
-	node *v = new node;
-	v->x = x;
-	v->y = rand();
-	v->l = NULL;
-	v->r = NULL;
+	node *v = new node(x);
 	split(root, x, l, r);
 	root = merge(merge(l, v), r);
 }
@@ -451,20 +686,17 @@ public:
 		upd[2 * v + 2] = upd[v];
 		upd[v] = NONE;
 	}
-	void modify(__int64 from, __int64 to, __int64 value, __int64 v, __int64 l, __int64 r){
-		if (to <= l || from >= r)
-			return;
-		if (from <= l && r <= to)
-		{
-			tree[v] = value*(r - l);
-			upd[v] = value;
-			return;
+	void update(int v, int tl, int tr, int pos, int new_val) {
+		if (tl == tr)
+			t[v] = new_val;
+		else {
+			int tm = (tl + tr) / 2;
+			if (pos <= tm)
+				update(v * 2, tl, tm, pos, new_val);
+			else
+				update(v * 2 + 1, tm + 1, tr, pos, new_val);
+			t[v] = t[v * 2] + t[v * 2 + 1];
 		}
-		push(v, l, r);
-		__int64 m = (l + r) / 2;
-		modify(from, to, value, 2 * v + 1, l, m);
-		modify(from, to, value, 2 * v + 2, m, r);
-		tree[v] = tree[2 * v + 1] + tree[2 * v + 2];
 	}
 	__int64 sum(__int64 from, __int64 to, __int64 v, __int64 l, __int64 r){
 		if (from <= l && r <= to){
